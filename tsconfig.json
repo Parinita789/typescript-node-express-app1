@@ -1,0 +1,29 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "lib": ["dom", "es2019"],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "preserveWatchOutput": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+  },
+  "include": [
+    "./**/*"
+  ],
+  // "files": [
+  //   "./typings/globals.d.ts"
+  // ],
+  "exclude": [
+    "./**/*.tests.ts",
+    "./node_modules",
+    "./dist",
+    // "./built/**/*" // This is what fixed it!
+  ]
+}

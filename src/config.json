@@ -1,0 +1,10 @@
+{
+	"port": 3000,
+	"bodyLimit": "100kb",
+	"corsHeaders": ["Link"],
+	"LOGGER_LEVEL": 0,
+	"redisConfig": {
+		"host": "127.0.0.1",
+		"port": 6379
+	}
+}
