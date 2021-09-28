@@ -28,28 +28,28 @@ export class LoggerService implements ILoggerService {
       exitOnError: false,
     });
   }
-
+  
   public silly(message: string): void {
-    this.winston.silly(message); //this.transformPayload(metadata)
+    this.winston.silly(message);
   }
 
-  public debug(message: string, metadata?: any): void {
+  public debug(message: string): void {
     this.winston.debug(message);
   }
 
-  public verbose(message: string, metadata?: any): void {
+  public verbose(message: string): void {
     this.winston.verbose(message);
   }
 
-  public info(message: string, metadata?: any): void {
+  public info(message: string): void {
     this.winston.info(message);
   }
 
-  public warn(message: string, metadata?: any): void {
+  public warn(message: string): void {
     this.winston.warn(message);
   }
 
-  public error(message, metadata?: any): void {
+  public error(message): void {
     this.winston.error(message);
   }
 }

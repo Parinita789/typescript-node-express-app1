@@ -27,7 +27,12 @@ export class HttpService implements IHttpService {
     this.logger = logger;
     this.basicMiddleware = basicMiddleware;
   }
-
+  
+  /**
+  * Returns block data of different pages.
+  * @publci @async
+  * @description creates server, register routes and middlewares
+  */
   public async initializeServer(): Promise<void> {
     this.app = express();
 

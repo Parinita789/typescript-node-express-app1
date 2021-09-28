@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import cors from 'cors';
 import { injectable, inject } from 'inversify';
-import { CONSTANTS } from '../constants/common';
+import { CONSTANTS } from '../constants/commonConstants';
 import { SERVICE_IDENTIFIER } from '../constants/identifier';
 import { ILoggerService } from '../service/logger.service';
 import { handleError } from './errorHandler.middleware';

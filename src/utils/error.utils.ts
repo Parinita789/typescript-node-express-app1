@@ -9,7 +9,7 @@ class BaseError extends Error {
   
 export class InternalServerError extends BaseError {
   constructor (name, description) {
-    super(name, description)
+    super(name, description);
   }
 }
      

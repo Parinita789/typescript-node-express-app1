@@ -1,17 +1,18 @@
 import { injectable, inject } from 'inversify';
 import { ClientOpts, createClient, RedisClient } from 'redis';
 import CONFIG from '../CONFIG/envCONFIG';
-import { CONSTANTS } from '../constants/common';
+import { CONSTANTS } from '../constants/commonConstants';
 import { ILoggerService } from '../service/logger.service';
 import { SERVICE_IDENTIFIER } from '../constants/identifier';
 
 export interface IRedisService {
   initializeClient(): Promise<void>;
   shutdownClient(): Promise<void>;
-  getKey(key: string): Promise<string>;
+  mGetKey(key: string): Promise<string[]>;
+  hSetKey(key: string, value: string, expires?: number): Promise<void>;
   setKey(key: string, value: string, expires?: number): Promise<void>;
-  getValueFromHash(hash: string): Promise<object>;
-  zadd(name: string, score: number, key: string): Promise<number>;
+  getValueFromHash(hash: string): Promise<string>;
+  zadd(pageNumber: number, score: number, key: string): Promise<boolean>;
   zrange(pageNumber: string): Promise<string[]>;
   expireKeyAt(key: string, unixTimestamp: number): Promise<void>;
 }
@@ -27,6 +28,10 @@ export class RedisService implements IRedisService {
     this.redisCONFIG = CONFIG.REDIS;
   }
 
+  /**
+  * @publc @async
+  * @description Creates redis client connection
+  */
   public async initializeClient(): Promise<void> {
     const connectionOptions: ClientOpts = {
       retry_strategy: this.retryStrategy,
@@ -61,38 +66,47 @@ export class RedisService implements IRedisService {
     });
   }
 
-  public async setKey(key: string, value: string): Promise<void> {
+  public async hSetKey(key: string, value: string): Promise<void> {
     return await new Promise((resolve, reject) => {
-      this.redisClient.set(key, value, (err, obj) => {
+      this.redisClient.hset(key, 'block', value, (err, result) => {
         if (err) reject(err);
         resolve();
       });
     });
   }
 
-  public async getKey(key: string): Promise<string> {
+  public async setKey(key: string, value: string): Promise<void> {
     return await new Promise((resolve, reject) => {
-      this.redisClient.get(key, (err, obj) => {
+      this.redisClient.set(key, value, (err, result) => {
         if (err) reject(err);
-        return resolve(obj);
+        resolve();
       });
     });
   }
 
-  public async zadd(name: string, score: number, key: string): Promise<number> {
+  public async mGetKey(key: string): Promise<string[]> {
     return await new Promise((resolve, reject) => {
-      this.redisClient.zadd(name, score, key, (err, obj) => {
+      this.redisClient.mget(key, (err, value) => {
         if (err) reject(err);
-        return resolve(obj);
+        return resolve(value);
       });
     });
   }
 
-  public async getValueFromHash(hash: string): Promise<object> {
+  public async zadd(pageNumber: number, score: number, key: string): Promise<boolean> {
+    try {
+      const name = `${CONSTANTS.REDIS_ZADD_NAME_PREFIX}${pageNumber}`;
+      return await this.redisClient.zadd(name, score, key);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getValueFromHash(hash: string): Promise<string> {
     return await new Promise((resolve, reject) => {
-      this.redisClient.hgetall(hash, (err, obj) => {
+      this.redisClient.hget(hash, 'block', (err, result) => {
         if (err) reject(err);
-        return resolve(obj);
+        return resolve(JSON.parse(result));
       });
     });
   }

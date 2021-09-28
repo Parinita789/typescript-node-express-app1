@@ -2,8 +2,9 @@ export const SERVICE_IDENTIFIER = {
   RedisService: Symbol.for('RedisService'),
   HttpService: Symbol.for('HttpService'),
   BlockService: Symbol.for('BlockService'),
-  BlockController: Symbol.for('BlockController'),
-  Application: Symbol.for('Application'),
+  RequestService: Symbol.for('RequestService'),
   Logger: Symbol.for('LoggerService'),
+  Application: Symbol.for('Application'),
+  BlockController: Symbol.for('BlockController'),
   BasicMiddleware: Symbol.for('BasicMiddleware'),
 }
