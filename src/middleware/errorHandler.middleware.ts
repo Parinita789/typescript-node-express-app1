@@ -1,42 +1,37 @@
-class ValidationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = this.constructor.name;
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
-  
-class InterServerError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = this.constructor.name;
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
+import { HTTP_STATUS_CODES } from '../constants/httpStatusCodes';
+import {
+  InternalServerError,
+  BadRequestError,
+  PageNotFound
+} from '../utils/error.utils';
 
 /**
  * @function
  * @description This is a helper method, which creates an error object
  * @param {*} err Javascript error object
  */
-
-export class ErrorHandler {
-
-  getErrorType(err) {
-    const obj = {
-      name: err.name,
-      message: err.message,
-      status: 0,
-      errorResponse: {},
-    };
-  
-    if (err instanceof ValidationError) {
-      obj.status = 400; // Bad Request
-    } else if (err instanceof InterServerError) {
-      obj.status = 500; // Internal Server Error
-    } else {
-      obj.status = 500;
-    }
-    return obj;
+function getHttpStatusCode(err) {
+  let status;
+  switch (err) {
+    case err instanceof BadRequestError:
+      status = HTTP_STATUS_CODES.BAD_REQUEST; 
+      break;
+    case err instanceof PageNotFound:
+      status = HTTP_STATUS_CODES.NOT_FOUND; 
+      break;
+    case err instanceof InternalServerError:
+      status = HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR; 
+      break;  
+    default:
+      status = HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR;
   }
+  return status;
+}
+
+export function handleError(err, req, res, next) {
+  const status = getHttpStatusCode(err);
+  res.status(status).json({
+    message: err.message,
+    name: err.name
+  })
 }

@@ -1,15 +1,15 @@
+import { Express } from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import cors from 'cors';
 import { injectable, inject } from 'inversify';
-import config from '../config.json';
+import { CONSTANTS } from '../constants/common';
 import { SERVICE_IDENTIFIER } from '../constants/identifier';
 import { ILoggerService } from '../service/logger.service';
-
-import express from 'express';
+import { handleError } from './errorHandler.middleware';
 
 export interface IBasicMiddleware {
-  initializeMiddlewares(app: express.Express): Promise<void>;
+  initializeMiddlewares(app: Express): Promise<void>;
 }
 
 @injectable()
@@ -22,17 +22,20 @@ export class BasicMiddleware {
   public async initializeMiddlewares(app): Promise<void> {
     try {  
       app.use(bodyParser.json({
-        limit : config.bodyLimit
+        limit : CONSTANTS.BODY_LIMIT
       }));
       
       app.use(cors({
-        exposedHeaders: config.corsHeaders
+        exposedHeaders: CONSTANTS.CORS_HEADER
       }));
       
-      app.use(morgan('dev'));   
-    } catch (error) {
-      this.logger.error(error);
-      console.log("err 111 >>> ", error)
+      app.use(morgan('dev'));  
+      
+      app.use(handleError) // handling erorrs
+
+    } catch (err) {
+      this.logger.error(err);
+      throw err;
     }
   }
 }

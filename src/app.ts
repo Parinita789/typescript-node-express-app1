@@ -26,13 +26,11 @@ export class Application implements IApplication {
 
   public async initializeApplication(): Promise<void> {
     try {  
-      // await this.configurationService.initializeConfiguration();
       await this.redisService.initializeClient();
       await this.httpService.initializeServer();
   
       this.logger.info('Application Started');
     } catch (error) {
-      console.log("err 22 >>> ", error)
       this.logger.error(error);
       this.gracefulShutdown(error);
     }

@@ -1,6 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { ClientOpts, createClient, RedisClient } from 'redis';
-import { redisConfig } from '../config.json';
+import CONFIG from '../CONFIG/envCONFIG';
+import { CONSTANTS } from '../constants/common';
 import { ILoggerService } from '../service/logger.service';
 import { SERVICE_IDENTIFIER } from '../constants/identifier';
 
@@ -11,7 +12,7 @@ export interface IRedisService {
   setKey(key: string, value: string, expires?: number): Promise<void>;
   getValueFromHash(hash: string): Promise<object>;
   zadd(name: string, score: number, key: string): Promise<number>;
-  zrange(pageNumber: string, min: number, max: number): Promise<string[]>;
+  zrange(pageNumber: string): Promise<string[]>;
   expireKeyAt(key: string, unixTimestamp: number): Promise<void>;
 }
 
@@ -19,11 +20,11 @@ export interface IRedisService {
 export class RedisService implements IRedisService {
   private logger;
   private redisClient: RedisClient;
-  private redisConfig: any;
+  private redisCONFIG: any;
 
   constructor(@inject(SERVICE_IDENTIFIER.Logger) logger: ILoggerService) {
     this.logger = logger;
-    this.redisConfig = redisConfig;
+    this.redisCONFIG = CONFIG.REDIS;
   }
 
   public async initializeClient(): Promise<void> {
@@ -32,7 +33,7 @@ export class RedisService implements IRedisService {
       socket_keepalive: true,
     };
 
-    this.redisClient = createClient(this.redisConfig.port, this.redisConfig.host, connectionOptions);
+    this.redisClient = createClient(this.redisCONFIG.port, this.redisCONFIG.host, connectionOptions);
 
     this.redisClient.on('connect', () => {
       this.logger.info('Redis connected.');
@@ -96,10 +97,10 @@ export class RedisService implements IRedisService {
     });
   }
 
-  public async zrange(pageNumber: string, min: number, max: number): Promise<string[]> {
+  public async zrange(pageNumber: string): Promise<string[]> {
     return await new Promise((resolve, reject) => {
-      const name = `block-set-${pageNumber}`;
-      this.redisClient.zrange(name, min, max, (err, obj) => {
+      const name = `${CONSTANTS.REDIS_ZADD_NAME_PREFIX}${pageNumber}`;
+      this.redisClient.zrange(name, CONSTANTS.PAGE_MIN, CONSTANTS.PAGE_MAX, (err, obj) => {
         if (err) reject(err);
         return resolve(obj);
       });
