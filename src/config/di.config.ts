@@ -1,13 +1,13 @@
 import { Container } from 'inversify';
 import 'reflect-metadata';
-import { SERVICE_IDENTIFIER } from '../constants/identifier';
+import { SERVICE_IDENTIFIER } from '../constants/identifier.constant';
 import { RedisService, IRedisService } from '../service/redis.service';
 import { HttpService, IHttpService } from '../service/http.service';
 import { Application, IApplication } from '../app';
 import { BasicMiddleware, IBasicMiddleware } from '../middleware/basic.middleware';
 import { LoggerService, ILoggerService } from '../service/logger.service';
 import { BlockService, IBlockService } from '../service/block.service';
-import { BlockController, IBlockController } from '../controller/blockApiController';
+import { BlockController, IBlockController } from '../controller/blockApi.controller';
 import { RequestService, IRequestService } from '../service/request.service';
 
 export function register(diContainer: Container) {

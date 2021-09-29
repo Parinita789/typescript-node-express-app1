@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODES } from '../constants/httpStatusCodesConstants';
+import { HTTP_STATUS_CODES } from '../constants/httpStatusCodes.constants';
 import {
   InternalServerError,
   BadRequestError,

@@ -1,55 +1,28 @@
-Express & ES6 REST API Boilerplate
+Express & Typescript App
 ==================================
-
-This is a straightforward boilerplate for building REST APIs with ES6 and Express.
-
-- ES6 support via [babel](https://babeljs.io)
-- REST resources as middleware via [resource-router-middleware](https://github.com/developit/resource-router-middleware)
-- CORS support via [cors](https://github.com/troygoode/node-cors)
-- Body Parsing via [body-parser](https://github.com/expressjs/body-parser)
-
-> Tip: If you are using [Mongoose](https://github.com/Automattic/mongoose), you can automatically expose your Models as REST resources using [restful-mongoose](https://git.io/restful-mongoose).
-
-
+- Tech stack used - node.js, typescript, express, redis.
+- Used redis for caching data.
+- Used inversify framework for dependency injection.
+- Used Winston npm for logging.
+- Used Request npm for fetching block details from the remote server.
+- API GET Block detials: Check for the block data in the redis cache if exists returns the paginated data according to the page number from the cache if not exists then fetches the data from the remote server and saves it in the redis in sorted set using zrange.
+- Not using TTL for updating data in the redis since the data fetched from the external server will reamin same. If the data was same then the TTL can be considered for 10 mins.
+- API GET block details by hash: Check if the data for the hash exist in the cache if exist return from the cache if not then store data hash and block detials pair in redis.
 
 Getting Started
 ---------------
 
 ```sh
 # clone it
-git clone git@github.com:developit/express-es6-rest-api.git
-cd express-es6-rest-api
-
-# Make it your own
-rm -rf .git && git init && npm init
+git clone git@github.com:parinita789/typescript-node-express-app1.git
+cd typescript-node-express-app1.git
 
 # Install dependencies
 npm install
 
-# Start development live-reload server
-PORT=8080 npm run dev
-
-# Start production server:
-PORT=8080 npm start
-```
-Docker Support
-------
-```sh
-cd express-es6-rest-api
-
-# Build your docker
-docker build -t es6/api-service .
-#            ^      ^           ^
-#          tag  tag name      Dockerfile location
-
-# run your docker
-docker run -p 8080:8080 es6/api-service
-#                 ^            ^
-#          bind the port    container tag
-#          to your host
-#          machine port   
-
-```
+# Start dev server:
+npm start
+`
 
 License
 -------

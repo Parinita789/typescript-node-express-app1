@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { SERVICE_IDENTIFIER } from './constants/identifier';
+import { SERVICE_IDENTIFIER } from './constants/identifier.constant';
 import { ILoggerService } from './service/logger.service';
 import { IHttpService } from './service/http.service';
 import { IRedisService } from './service/redis.service'

@@ -1,9 +1,9 @@
 import { injectable, inject } from 'inversify';
 import { ClientOpts, createClient, RedisClient } from 'redis';
-import CONFIG from '../CONFIG/envCONFIG';
-import { CONSTANTS } from '../constants/commonConstants';
+import CONFIG from '../config/env.config';
+import { CONSTANTS } from '../constants/common.constants';
 import { ILoggerService } from '../service/logger.service';
-import { SERVICE_IDENTIFIER } from '../constants/identifier';
+import { SERVICE_IDENTIFIER } from '../constants/identifier.constant';
 
 export interface IRedisService {
   initializeClient(): Promise<void>;
@@ -11,6 +11,7 @@ export interface IRedisService {
   mGetKey(key: string): Promise<string[]>;
   hSetKey(key: string, value: string, expires?: number): Promise<void>;
   setKey(key: string, value: string, expires?: number): Promise<void>;
+  getKey(key: string): Promise<string>
   getValueFromHash(hash: string): Promise<string>;
   zadd(pageNumber: number, score: number, key: string): Promise<boolean>;
   zrange(pageNumber: string): Promise<string[]>;
@@ -66,20 +67,20 @@ export class RedisService implements IRedisService {
     });
   }
 
-  public async hSetKey(key: string, value: string): Promise<void> {
+  public async setKey(key: string, value: string): Promise<void> {
     return await new Promise((resolve, reject) => {
-      this.redisClient.hset(key, 'block', value, (err, result) => {
+      this.redisClient.set(key, value, (err, result) => {
         if (err) reject(err);
         resolve();
       });
     });
   }
 
-  public async setKey(key: string, value: string): Promise<void> {
+  public async getKey(key: string): Promise<string> {
     return await new Promise((resolve, reject) => {
-      this.redisClient.set(key, value, (err, result) => {
+      this.redisClient.get(key, (err, result) => {
         if (err) reject(err);
-        resolve();
+        resolve(JSON.parse(result));
       });
     });
   }
@@ -104,9 +105,18 @@ export class RedisService implements IRedisService {
 
   public async getValueFromHash(hash: string): Promise<string> {
     return await new Promise((resolve, reject) => {
-      this.redisClient.hget(hash, 'block', (err, result) => {
+      this.redisClient.hget('hash', hash, (err, result) => {
         if (err) reject(err);
         return resolve(JSON.parse(result));
+      });
+    });
+  }
+
+  public async hSetKey(key: string, value: string): Promise<void> {
+    return await new Promise((resolve, reject) => {
+      this.redisClient.hset('hash', key,  value, (err, result) => {
+        if (err) reject(err);
+        resolve();
       });
     });
   }

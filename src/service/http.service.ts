@@ -1,8 +1,8 @@
 import express from 'express';
 import { inject, injectable } from 'inversify';
 import { Server, createServer } from 'http';
-import CONFIG from '../CONFIG/envCONFIG';
-import { SERVICE_IDENTIFIER } from '../constants/identifier';
+import CONFIG from '../config/env.config';
+import { SERVICE_IDENTIFIER } from '../constants/identifier.constant';
 import { IBasicMiddleware } from '../middleware/basic.middleware';
 import router from '../api';
 import { ILoggerService } from './logger.service';

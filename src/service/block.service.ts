@@ -1,16 +1,15 @@
 
 import { inject, injectable } from 'inversify';
-import { SERVICE_IDENTIFIER } from '../constants/identifier';
+import { SERVICE_IDENTIFIER } from '../constants/identifier.constant';
 import { IRedisService  } from '../service/redis.service';
-import CONFIG from '../config/envConfig';
-import { CONSTANTS } from '../constants/commonConstants';
-import { ERROR_CONSTANTS, ERROR_NAMES } from '../constants/errorConstants';
+import CONFIG from '../config/env.config';
+import { CONSTANTS } from '../constants/common.constants';
+import { ERROR_CONSTANTS, ERROR_NAMES } from '../constants/error.constants';
 import { ILoggerService } from '../service/logger.service';
 import {
   InternalServerError
 } from '../utils/error.utils';
 import { IRequestService } from './request.service';
-import { convertTypeAcquisitionFromJson } from 'typescript';
 
 
 export interface IBlock {
@@ -66,14 +65,14 @@ export class BlockService implements IBlockService {
   */
   public async getAllBlocks(pageNumber: string): Promise<IBlock[]> {
     try {
-      let blocks: IBlock[] = [];
+      let blocks;
       // check data in redis cache aside
       let blockHashSet = await this.redisService.zrange(pageNumber);
       // if found return data from cache otherwise fetch from remote server
       if (blockHashSet?.length > 0) {
         blockHashSet = blockHashSet.map(hash => `block-${hash}`);
         blocks = await this.redisService.mGetKey(blockHashSet);
-        // parse response
+        blocks = blocks.map(block => JSON.parse(block))
       } else {
         const url = `${CONFIG.BASE_URL}/blocks/1573858800000?format=json`;
         const blockList = JSON.parse(await this.requestService.makeRequest(url));
@@ -83,8 +82,7 @@ export class BlockService implements IBlockService {
       }
       return blocks;
     } catch (err) {
-      console.log("err >>> ", err)
-      this.logger.error(`err in get all blocks details - ${err}`, );
+      this.logger.error(`err in get all blocks details - ${err}`);
       throw new InternalServerError(ERROR_NAMES.SERVER_ERROR, ERROR_CONSTANTS.INTERNAL_SERVER_ERROR);
     }
   }
@@ -100,17 +98,17 @@ export class BlockService implements IBlockService {
       let block: IBlockDetails;
       const url = `${CONFIG.BASE_URL}/rawblock/${hash}`;
       // check data in exists redis cache
-      let cachedData = await this.redisService.getValueFromHash(hash);
-      if (cachedData) {
-        return cachedData;
-      } else {
+      let cachedData: IBlockDetails  = await this.redisService.getKey(hash);
+      if (!cachedData) {
         // fetch data from the remote server
         block = await this.requestService.makeRequest(url);
         // save data in redis
         await this.redisService.setKey(hash, block)
         block = this.transformResponse(block);
+        return block;
+      } else {
+        return cachedData;
       }
-      return block;
     } catch (err) {
       this.logger.error(`err in get block details by hash - ${err}`);
       throw new InternalServerError(ERROR_NAMES.SERVER_ERROR, ERROR_CONSTANTS.INTERNAL_SERVER_ERROR);
@@ -123,7 +121,8 @@ export class BlockService implements IBlockService {
   * @return {IBlockDetails} block details.
   */
   private transformResponse(block): IBlockDetails {
-    let transactions = block?.tx.map(txn => {
+    block = JSON.parse(block);
+    let transactions = block?.tx?.map(txn => {
       let txnObj = {
         hash: txn.hash,
         size: txn.size,
